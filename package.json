@@ -23,6 +23,6 @@
     "japanese-holidays": "^1.0.10"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": "v12.11.0"
   }
 }
