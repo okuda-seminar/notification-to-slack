@@ -1,4 +1,4 @@
 module.exports = (robot) ->
 
-  robot.respond /c/i, (msg) ->
+  robot.respond /hello/i, (msg) ->
     msg.send "bbb"
