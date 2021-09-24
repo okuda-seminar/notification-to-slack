@@ -20,8 +20,8 @@ cursor.execute('CREATE TABLE IF NOT EXISTS usernames(\
                 id INTEGER PRIMARY KEY AUTOINCREMENT,\
                 slack_user_id TEXT,\
                 github_name TEXT,\
-                created_at TEXT NOT NULL DEFAULT (DATETIME(\"now\", \"localtime\")),\
-                updated_at TEXT NOT NULL DEFAULT (DATETIME(\"now\", \"localtime\")))')
+                created_at TEXT NOT NULL DEFAULT (DATETIME(\'now\', \'localtime\')),\
+                updated_at TEXT NOT NULL DEFAULT (DATETIME(\'now\', \'localtime\')))')
 
 cursor.execute('SELECT * FROM usernames WHERE (slack_user_id=? AND github_name=?)', (new_data))
 entry = cursor.fetchone()
