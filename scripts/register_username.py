@@ -29,12 +29,12 @@ def insert_username(db, new_data):
 
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO)
+  logger = logging.getLogger(__name__)
   parser = argparse.ArgumentParser()
   parser.add_argument("-param1", help="parameter1 discription")
   parser.add_argument("-param2", help="parameter2 discription")
   args = parser.parse_args()
   new_data = (args.param1, args.param2)
-  logger = logging.getLogger(__name__)
   db_name = "git_slack.db"
   db = f'{DB_ROOT}/{db_name}'
   insert_username(db, new_data)
