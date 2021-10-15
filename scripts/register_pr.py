@@ -1,4 +1,6 @@
-from config import DB_ROOT
+# from config import DB_ROOT
+from os import sep
+from os.path import join, dirname, realpath
 import sqlite3
 import requests
 from datetime import datetime, timedelta
@@ -73,6 +75,8 @@ def insert_data(db):
 
 if __name__ == '__main__':
     db_name = "git_slack.db"
+    PROJECT_ROOT = join(sep, *dirname(realpath(__file__)).split(sep)[: -1])
+    DB_ROOT = join(PROJECT_ROOT, 'db')
     db = f'{DB_ROOT}/{db_name}'
     create_table(db)
     insert_data(db)
