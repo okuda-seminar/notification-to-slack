@@ -1,0 +1,1 @@
+DB_ROOT = "C:\\Users\\Yuta Nagai\\notification-to-slack"
