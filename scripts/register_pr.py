@@ -1,11 +1,9 @@
-from os import sep
-from os.path import join, dirname, realpath
 import sqlite3
 
 import requests
 from datetime import datetime, timedelta
 
-from .config.const import DB_ROOT
+from config import DB_ROOT
 
 def create_table(db):
     with sqlite3.connect(db) as con:
