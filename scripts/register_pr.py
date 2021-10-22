@@ -1,9 +1,8 @@
 import sqlite3
-
 import requests
 from datetime import datetime, timedelta
-
 from config import DB_ROOT
+
 
 def create_table(db):
     with sqlite3.connect(db) as con:
