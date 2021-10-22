@@ -3,11 +3,21 @@ module.exports = (robot) ->
   class PullRequest
     filter_reviewer: (slack_user_id, repo) ->
       {PythonShell} = require('python-shell');
-      pyshell = new PythonShell('./scripts/read_pr.py');
-      pyshell.send([slack_user_id, repo]);
-      pyshell.on('pr_titles', (pr_titles)->
+
+      execute_path = './scripts/read_pr.py'
+      options = {
+          args:[
+              '-param1', slack_user_id
+              '-param2', repo
+          ]
+      }
+
+      pyshell = new PythonShell(execute_path, options);
+      pyshell.send()
+      pyshell.on('message', (pr_titles)->
         msg.send pr_titles
       )
+
 
   main = (slack_user_id, repo) ->
     pr_titles = new PullRequest().filter_reviewer(slack_user_id, repo)
@@ -18,8 +28,7 @@ module.exports = (robot) ->
   unless (url_api_base = process.env.HUBOT_GITHUB_API)?
     url_api_base = "https://api.github.com"
 
-  robot.respond /showpr_test\s+(me\s+)?(.*)\s+pulls(\s+with\s+)?(.*)?/i, (msg)->
+  robot.respond /showpr\s+(me\s+)?(.*)\s+pulls(\s+with\s+)?(.*)?/i, (msg)->
     repo = github.qualified_repo msg.match[2]
     slack_user_id = msg.message.user.id;
-    message = main(slack_user_id, repo)
-    msg.send message
+    main(slack_user_id, repo)
