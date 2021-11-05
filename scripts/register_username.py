@@ -9,7 +9,7 @@ from config import DB_PATH
 
 
 def insert_username(db_path : str, new_data: tuple) -> None:
-    """insert the user's information into database
+    """Insert the user's information into database
 
     Args:
         db_path(str): path to the git_slack.db
@@ -17,22 +17,31 @@ def insert_username(db_path : str, new_data: tuple) -> None:
     """
     with sqlite3.connect(db_path) as con:
         cursor = con.cursor()
-        cursor.execute('CREATE TABLE IF NOT EXISTS usernames(\
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,\
-                    slack_user_id TEXT,\
-                    github_name TEXT,\
-                    created_at TEXT NOT NULL DEFAULT\
-                    (DATETIME(\'now\', \'localtime\')),\
-                    updated_at TEXT NOT NULL DEFAULT\
-                    (DATETIME(\'now\', \'localtime\')))')
+        cursor.execute(
+            'CREATE TABLE IF NOT EXISTS usernames(\
+            id INTEGER PRIMARY KEY AUTOINCREMENT,\
+            slack_user_id TEXT,\
+            github_name TEXT,\
+            created_at TEXT NOT NULL DEFAULT\
+            (DATETIME(\'now\', \'localtime\')),\
+            updated_at TEXT NOT NULL DEFAULT\
+            (DATETIME(\'now\', \'localtime\')))'
+        )
 
-        cursor.execute('SELECT * FROM usernames WHERE\
-                    (slack_user_id=? AND github_name=?)', (new_data))
+        cursor.execute(
+            'SELECT * FROM usernames WHERE\
+            (slack_user_id=? AND github_name=?)',
+            (new_data)
+        )
+
         entry = cursor.fetchone()
 
         if entry is None:
-            cursor.execute('INSERT INTO usernames(slack_user_id, github_name, created_at, updated_at)\
-                        VALUES (?,?,?,?)', (new_data[0], new_data[1], datetime.now(), datetime.now()))
+            cursor.execute(
+                'INSERT INTO usernames(slack_user_id, github_name, created_at, updated_at)\
+                VALUES (?,?,?,?)',
+                (new_data[0], new_data[1], datetime.now(), datetime.now())
+            )
             con.commit()
             msg = 'The username on Github has been registered in the database.'
             log_level = "info"

@@ -9,6 +9,12 @@ logger = logging.getLogger(__name__)
 
 class MultipleWriter:
     def write(self, msg: str, log_level: str) -> None:
+        """Write message to the user, and write it in log file
+
+        Args:
+            msg(str): string
+            log_level(str): string
+        """
         if msg:
             print(msg)
         if log_level == "info":
