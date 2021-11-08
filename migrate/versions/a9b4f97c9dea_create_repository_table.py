@@ -1,7 +1,7 @@
 """create repository table
 
 Revision ID: a9b4f97c9dea
-Revises: 
+Revises:
 Create Date: 2021-11-01 17:06:38.623546
 
 """
