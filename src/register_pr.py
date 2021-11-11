@@ -1,6 +1,6 @@
+from datetime import datetime, timedelta
 from os.path import join
 import sqlite3
-from datetime import datetime, timedelta
 
 import requests
 
@@ -8,30 +8,39 @@ from config import DB_PATH
 
 
 class PullRequest:
-    def __init__(self, db_name):
+    def __init__(self, db_name: str) -> None:
         self.db_path = DB_PATH.format(DB_NAME=db_name)
 
-    def insert_repositories(self, data):
+    def insert_repositories(self, data: tuple) -> None:
         with sqlite3.connect(self.db_path) as con:
             cursor = con.cursor()
             cursor.execute(
-                    "INSERT INTO repositories(repo_name, pr_id, pr_created_at, pr_updated_at,\
-                    created_at, updated_at)\
-                    VALUES(?, ?, ?, ?, ?, ?)", data
+                    "INSERT INTO repositories(
+                            repo_name,
+                            pr_id, pr_created_at,
+                            pr_updated_at,
+                            created_at, updated_at
+                    )
+                VALUES(?, ?, ?, ?, ?, ?)", data
             )
             con.commit()
 
-    def insert_pull_requests(self, data):
+    def insert_pull_requests(self, data: tuple) -> None:
         with sqlite3.connect(self.db_path) as con:
             cursor = con.cursor()
             cursor.execute(
-                    "INSERT INTO pull_requests(pr_id, pr_title, pr_reviewer,\
-                    pr_number, pr_url, created_at, updated_at)\
-                    VALUES(?, ?, ?, ?, ?, ?, ?)", data
+                    "INSERT INTO pull_requests(
+                            pr_id, pr_title, pr_reviewer,
+                            pr_number,
+                            pr_url,
+                            created_at,
+                            updated_at
+                    )
+                VALUES(?, ?, ?, ?, ?, ?, ?)", data
             )
             con.commit()
 
-    def delete_pull_requests(self, data):
+    def delete_pull_requests(self, data: tuple) -> None:
         with sqlite3.connect(self.db_path) as con:
             cursor = con.cursor()
             cursor.execute(
@@ -41,10 +50,8 @@ class PullRequest:
             )
             con.commit()
 
-    def access_github(self):
-        """insert data
-        Args:
-            db_path (str): database path
+    def insert_data(self) -> None:
+        """Insert data
         """
         token = "token"
         headers = {"Authorization": f"token {token}"}
