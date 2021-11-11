@@ -10,49 +10,50 @@ from src.register_pr import create_table, insert_data
 class TestRegisterPr(unittest.TestCase):
 
     def test_create_table(self):
-        """test create_table
-        check arbitrary database existed tables
-        """
-        # setting test database path
+        """Test of create_table function"""
         db_path = join(DB_ROOT, "test.db")
-        # call create_table function
         create_table(db_path)
         with sqlite3.connect(db_path) as con:
             cursor = con.cursor()
-            # get table in db
-            # [("pull_requests",),("sqlite_sequence",),("repositories",)]
             table = cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
-            # whether table[0] is pull_requests
-            self.assertEqual(table[0][0], "pull_requests")
-            # wheter table[2] is repositories
-            self.assertEqual(table[2][0], "repositories")
+            # table = [("pull_requests",),("sqlite_sequence",),("repositories",)]
+            pull_requests_num = 0
+            repositories_num = 2
+            self.assertEqual(table[pull_requests_num][0], "pull_requests")
+            self.assertEqual(table[repositories_num][0], "repositories")
 
     def test_insert_data(self):
-        """test of insert_data function"""
-        # setting test database path
+        """Test of insert_data function"""
         db_path = join(DB_ROOT, "test.db")
-        # call create_table function
         insert_data(db_path)
         with sqlite3.connect(db_path) as con:
             cursor = con.cursor()
-            # get one record in repositories table
             repositories = cursor.execute("SELECT * FROM repositories").fetchall()
-            # if there are some pull request in repositories
             try:
                 self.assertIsNotNone(repositories)
             except TypeError:
                 print("pull requests is None")
             pull_requests = cursor.execute("SELECT * FROM pull_requests").fetchall()
-            pr_list = [pr[1] for pr in pull_requests]
+            pr_title_num = 1
+            pr_list = [pr[pr_title_num] for pr in pull_requests]
+            pr_list = list(set(pr_list))
             if not pr_list:
                 self.assertIsNotNone(pull_requests)
             else:
-                for repo in repositories:
-                    created_time = repo[3]
-                    if created_time <= datetime.now() - timedelta(days=1):
-                        self.assertRegexpMatches(repo[2], pr_list)
-                    else:
-                        self.assertNotRegexpMatches(repo[2], pr_list)
+                repository_title_num = 2
+                time_create_num = 3
+                time_update_num = 4
+                time_now_num = 5
+                for repository in repositories:
+                    created_time = datetime.strptime(repository[time_create_num], "%Y-%m-%d %H:%M:%S")
+                    updated_time = datetime.strptime(repository[time_update_num], "%Y-%m-%d %H:%M:%S")
+                    one_day_deltatime = datetime.strptime(repository[time_now_num], "%Y-%m-%d %H:%M:%S.%f") - timedelta(days=1)
+                    if created_time <= one_day_deltatime:
+                        if repository[repository_title_num] in pr_list:
+                            pr_list.remove(repository[repository_title_num])
+                    elif updated_time <= one_day_deltatime:
+                        self.assertNotIn(repository[repository_title_num], pr_list)
+                self.assertIs(len(pr_list), 0)
 
 
 if __name__ == "__main__":

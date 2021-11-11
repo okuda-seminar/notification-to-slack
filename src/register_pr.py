@@ -20,8 +20,8 @@ def create_table(db_path: str) -> None:
                         pr_reviewer TEXT,\
                         pr_number INT,\
                         pr_url TEXT, \
-                        created_at TEXT NOT NULL DEFAULT (DATETIME(\"now\", \"localtime\")),\
-                        updated_at TEXT NOT NULL DEFAULT (DATETIME(\"now\", \"localtime\"))\
+                        created_at TEXT NOT NULL DEFAULT (DATETIME(\'now\', \'localtime\')),\
+                        updated_at TEXT NOT NULL DEFAULT (DATETIME(\'now\', \'localtime\'))\
                         )")
         cursor.execute("CREATE TABLE IF NOT EXISTS repositories(\
                         id INTEGER PRIMARY KEY AUTOINCREMENT,\
@@ -29,8 +29,8 @@ def create_table(db_path: str) -> None:
                         pr_id TEXT,\
                         pr_created_at TEXT NOT NULL DEFAULT DATETIME,\
                         pr_updated_at TEXT NOT NULL DEFAULT DATETIME,\
-                        created_at TEXT NOT NULL DEFAULT (DATETIME(\"now\", \"localtime\")),\
-                        updated_at TEXT NOT NULL DEFAULT (DATETIME(\"now\", \"localtime\"))\
+                        created_at TEXT NOT NULL DEFAULT (DATETIME(\'now\', \'localtime\')),\
+                        updated_at TEXT NOT NULL DEFAULT (DATETIME(\'now\', \'localtime\'))\
                         )")
 
 
@@ -63,10 +63,8 @@ def insert_data(db_path: str):
                                         datetime.now(),
                                         datetime.now()
                                     ))
-
                     created_time = datetime.strptime(pull_request["created_at"], "%Y-%m-%dT%H:%M:%SZ")
                     updated_time = datetime.strptime(pull_request["updated_at"], "%Y-%m-%dT%H:%M:%SZ")
-
                     if created_time <= datetime.now() - timedelta(days=1):
                         for reviewer in pull_request["requested_reviewers"]:
                             cursor.execute("INSERT INTO pull_requests(pr_id, pr_title, pr_reviewer,\
@@ -83,10 +81,10 @@ def insert_data(db_path: str):
                     elif updated_time <= datetime.now() - timedelta(days=1):
                         reviewers = [reviewer["login"] for reviewer in pull_request["requested_reviewers"]]
                         cursor.execute("DELETE FROM pull_requests WHERE pr_id = {} AND reviewer NOT IN {}".format(
-                            pull_request["ode_id"], reviewers))
+                            pull_request["node_id"], reviewers))
+            con.commit()
         except TypeError:
             print("There is no token")
-        con.commit()
 
 
 if __name__ == "__main__":
