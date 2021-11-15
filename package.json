@@ -2,7 +2,7 @@
   "name": "myhubot",
   "version": "0.0.0",
   "private": true,
-  "author": "tkkawa <tkm.kawa@gmail.com>",
+  "author": "xxxxxxxxxxxxxxxx",
   "description": "A simple helpful robot for your Company",
   "dependencies": {
     "cron": "^1.8.2",
