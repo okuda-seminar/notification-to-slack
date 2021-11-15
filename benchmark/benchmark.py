@@ -4,6 +4,8 @@ import time
 import unittest
 from unittest.mock import PropertyMock, MagicMock, patch
 
+import hydra
+from omegaconf import DictConfig, OmegaConf
 import requests
 
 from config import DB_PATH
@@ -73,7 +75,8 @@ class TestDatabase(unittest.TestCase):
                 pull_request.insert_repositories(data)
 
 
-def benchmark_db() -> None:
+@hydra.main(config_name="config")
+def benchmark_db(cfg: DictConfig) -> None:
     """Benchmark test the performance of the database
     """
     benchmark_pull_request = TestDatabase()
@@ -82,11 +85,11 @@ def benchmark_db() -> None:
     db_path = DB_PATH.format(DB_NAME=db_name)
     benchmark_pull_request.create_table(db_path)
 
-    init_num = 0
-    total_num = 10000
-    interval_num = 500
+    INIT_NUM = cfg.benchmark.init
+    TOTAL_NUM = cfg.benchmark.total
+    INTERVAL_NUM = cfg.benchmark.interval
 
-    for i in range(init_num, total_num, interval_num):
+    for i in range(INIT_NUM, TOTAL_NUM, INTERVAL_NUM):
         with Timer() as t:
             benchmark_pull_request.test_insert_pull_request(data_num=i, db_name=db_name)
 
