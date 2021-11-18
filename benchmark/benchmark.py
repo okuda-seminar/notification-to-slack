@@ -1,26 +1,18 @@
 from datetime import datetime
+from os import makedirs
 import sqlite3
 import time
 import unittest
 from unittest.mock import PropertyMock, MagicMock, patch
 
+import plotly.graph_objects as go
+import numpy as np
 import hydra
 from omegaconf import DictConfig, OmegaConf
 import requests
 
-from config import DB_PATH
+from config import DB_PATH, FIG_PATH
 from src.register_pr import PullRequest 
-
-
-class Timer(object):
-    def __enter__(self):
-        self.start = time.time()
-        return self
-
-    def __exit__(self, *args):
-        self.end = time.time()
-        self.secs = self.end - self.start
-        print('  => elapsed time: %f s' % self.secs)
 
 
 class TestDatabase(unittest.TestCase):
@@ -74,6 +66,39 @@ class TestDatabase(unittest.TestCase):
 
                 pull_request.insert_repositories(data)
 
+class Visualizer:
+
+    @staticmethod
+    def visualize(x: np.ndarray, y: np.ndarray, title: str = "benchmark test") -> None:
+        """Save figure.
+        Args:
+            x(np.ndarray): data points
+            y(np.ndarray): elapsed time
+            title(str): figure title
+        """
+        times_average = np.average(y, axis=0)
+        times_var = np.var(y, axis=0)
+        
+        fig = go.Figure(
+                data=go.Scatter(
+                    x=x,
+                    y=times_average,
+                    name=title,
+                    error_y=dict(
+                        type="data",
+                        array=times_var, 
+                        visible=True
+                    )
+                )
+            )
+        fig.update_xaxes(title='x')
+        fig.update_yaxes(title='y')
+        fig.update_layout(title=title)
+
+        makedirs(FIGS_ROOT, exist_ok=True)
+        fig_path = FIG_PATH.format(FIG_NAME=title)
+        fig.write_image(fig_path)
+
 
 @hydra.main(config_name="config")
 def benchmark_db(cfg: DictConfig) -> None:
@@ -83,20 +108,38 @@ def benchmark_db(cfg: DictConfig) -> None:
 
     db_name = "dummy.db"
     db_path = DB_PATH.format(DB_NAME=db_name)
-    benchmark_pull_request.create_table(db_path)
 
     INIT_NUM = cfg.benchmark.init
     TOTAL_NUM = cfg.benchmark.total
     INTERVAL_NUM = cfg.benchmark.interval
+    EXPERIMENT_NUM = cfg.benchmark.experiment
 
-    for i in range(INIT_NUM, TOTAL_NUM, INTERVAL_NUM):
-        with Timer() as t:
-            benchmark_pull_request.test_insert_pull_request(data_num=i, db_name=db_name)
+    for i in range(EXPERIMENT_NUM):
+        cur_result_times = np.array([])
+        benchmark_pull_request.create_table(db_path)
+        for num in range(INIT_NUM, TOTAL_NUM, INTERVAL_NUM):
+            start_time = time.time()
+            benchmark_pull_request.test_insert_pull_request(data_num=num, db_name=db_name)
+            end_time = time.time()
 
-    with sqlite3.connect(db_path) as con:
-        cursor = con.cursor()
-        cursor.execute("""DROP TABLE repositories""")
-        con.commit()
+            elapsed_time = end_time - start_time
+            print('  => elapsed time: %f s' % elapsed_time)
+
+            cur_result_times = np.append(cur_result_times, elapsed_time)
+            cur_result_times.reshape(1, -1)
+
+        with sqlite3.connect(db_path) as con:
+            cursor = con.cursor()
+            cursor.execute("""DROP TABLE repositories""")
+            con.commit()
+
+        if i == 0:
+            result_times = cur_result_times
+        else:
+            result_times = np.vstack((result_times, cur_result_times))
+
+    x = np.arange(INIT_NUM, TOTAL_NUM, INTERVAL_NUM)
+    Visualizer.visualize(x, result_times)
 
 
 if __name__ == "__main__":
