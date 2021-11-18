@@ -41,7 +41,8 @@ def insert_data(db_path: str):
     """
     with sqlite3.connect(db_path) as con:
         cursor = con.cursor()
-        token = "token"
+        token = "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"
+        TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
         headers = {"Authorization": f"token {token}"}
         repo_url = "https://api.github.com/user/repos"
         repositories = requests.get(repo_url, headers=headers)
@@ -58,13 +59,13 @@ def insert_data(db_path: str):
                                     VALUES(?, ?, ?, ?, ?, ?)", (
                                         repository["full_name"],
                                         pull_request["node_id"],
-                                        datetime.strptime(pull_request["created_at"], "%Y-%m-%dT%H:%M:%SZ"),
-                                        datetime.strptime(pull_request["updated_at"], "%Y-%m-%dT%H:%M:%SZ"),
+                                        datetime.strptime(pull_request["created_at"], TIME_FORMAT),
+                                        datetime.strptime(pull_request["updated_at"], TIME_FORMAT),
                                         datetime.now(),
                                         datetime.now()
                                     ))
-                    created_time = datetime.strptime(pull_request["created_at"], "%Y-%m-%dT%H:%M:%SZ")
-                    updated_time = datetime.strptime(pull_request["updated_at"], "%Y-%m-%dT%H:%M:%SZ")
+                    created_time = datetime.strptime(pull_request["created_at"], TIME_FORMAT)
+                    updated_time = datetime.strptime(pull_request["updated_at"], TIME_FORMAT)
                     if created_time <= datetime.now() - timedelta(days=1):
                         for reviewer in pull_request["requested_reviewers"]:
                             cursor.execute("INSERT INTO pull_requests(pr_id, pr_title, pr_reviewer,\

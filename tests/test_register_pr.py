@@ -17,10 +17,10 @@ class TestRegisterPr(unittest.TestCase):
             cursor = con.cursor()
             table = cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
             # table = [("pull_requests",),("sqlite_sequence",),("repositories",)]
-            pull_requests_num = 0
-            repositories_num = 2
-            self.assertEqual(table[pull_requests_num][0], "pull_requests")
-            self.assertEqual(table[repositories_num][0], "repositories")
+            PULL_REQUESTS_NUM = 0
+            REPOSITORIES_NUM = 2
+            self.assertEqual(table[PULL_REQUESTS_NUM][0], "pull_requests")
+            self.assertEqual(table[REPOSITORIES_NUM][0], "repositories")
 
     def test_insert_data(self):
         """Test of insert_data function"""
@@ -34,25 +34,26 @@ class TestRegisterPr(unittest.TestCase):
             except TypeError:
                 print("pull requests is None")
             pull_requests = cursor.execute("SELECT * FROM pull_requests").fetchall()
-            pr_title_num = 1
-            pr_list = [pr[pr_title_num] for pr in pull_requests]
+            PR_TITLE_NUM = 1
+            pr_list = [pr[PR_TITLE_NUM] for pr in pull_requests]
             pr_list = list(set(pr_list))
             if not pr_list:
                 self.assertIsNotNone(pull_requests)
             else:
-                repository_title_num = 2
-                time_create_num = 3
-                time_update_num = 4
-                time_now_num = 5
+                REPOSITORY_TITLE_NUM = 2
+                TIME_CREATED_NUM = 3
+                TIME_UPDATED_NUM = 4
+                TIME_NOW_NUM = 5
+                TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
                 for repository in repositories:
-                    created_time = datetime.strptime(repository[time_create_num], "%Y-%m-%d %H:%M:%S")
-                    updated_time = datetime.strptime(repository[time_update_num], "%Y-%m-%d %H:%M:%S")
-                    one_day_deltatime = datetime.strptime(repository[time_now_num], "%Y-%m-%d %H:%M:%S.%f") - timedelta(days=1)
+                    created_time = datetime.strptime(repository[TIME_CREATED_NUM], TIME_FORMAT)
+                    updated_time = datetime.strptime(repository[TIME_UPDATED_NUM], TIME_FORMAT)
+                    one_day_deltatime = datetime.strptime(repository[TIME_NOW_NUM], TIME_FORMAT) - timedelta(days=1)
                     if created_time <= one_day_deltatime:
-                        if repository[repository_title_num] in pr_list:
-                            pr_list.remove(repository[repository_title_num])
+                        if repository[REPOSITORY_TITLE_NUM] in pr_list:
+                            pr_list.remove(repository[REPOSITORY_TITLE_NUM])
                     elif updated_time <= one_day_deltatime:
-                        self.assertNotIn(repository[repository_title_num], pr_list)
+                        self.assertNotIn(repository[REPOSITORY_TITLE_NUM], pr_list)
                 self.assertIs(len(pr_list), 0)
 
 
