@@ -68,6 +68,7 @@ def insert_data(db_path: str):
     with sqlite3.connect(db_path) as con:
         cursor = con.cursor()
         token = "token"
+        TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
         headers = {"Authorization": f"token {token}"}
         repo_url = "https://api.github.com/user/repos"
         repositories = requests.get(repo_url, headers=headers)
