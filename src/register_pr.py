@@ -15,12 +15,14 @@ class PullRequest:
         with sqlite3.connect(self.db_path) as con:
             cursor = con.cursor()
             cursor.execute(
-                    "INSERT INTO repositories(
-                            repo_name,
-                            pr_id, pr_created_at,
-                            pr_updated_at,
-                            created_at, updated_at
-                    )
+                    "INSERT INTO repositories(\
+                            repo_name,\
+                            pr_id,\
+                            pr_created_at,\
+                            pr_updated_at,\
+                            created_at,\
+                            updated_at\
+                    )\
                 VALUES(?, ?, ?, ?, ?, ?)", data
             )
             con.commit()
@@ -29,13 +31,15 @@ class PullRequest:
         with sqlite3.connect(self.db_path) as con:
             cursor = con.cursor()
             cursor.execute(
-                    "INSERT INTO pull_requests(
-                            pr_id, pr_title, pr_reviewer,
-                            pr_number,
-                            pr_url,
-                            created_at,
-                            updated_at
-                    )
+                    "INSERT INTO pull_requests(\
+                            pr_id,\
+                            pr_title,\
+                            pr_reviewer,\
+                            pr_number,\
+                            pr_url,\
+                            created_at,\
+                            updated_at\
+                    )\
                 VALUES(?, ?, ?, ?, ?, ?, ?)", data
             )
             con.commit()
