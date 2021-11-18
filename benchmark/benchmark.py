@@ -11,7 +11,7 @@ import hydra
 from omegaconf import DictConfig, OmegaConf
 import requests
 
-from config import DB_PATH, FIG_PATH
+from config import DB_PATH, FIG_PATH, FIG_ROOT
 from src.register_pr import PullRequest 
 
 
@@ -91,11 +91,11 @@ class Visualizer:
                     )
                 )
             )
-        fig.update_xaxes(title='x')
-        fig.update_yaxes(title='y')
+        fig.update_xaxes(title='number of data')
+        fig.update_yaxes(title='elapsed time')
         fig.update_layout(title=title)
 
-        makedirs(FIGS_ROOT, exist_ok=True)
+        makedirs(FIG_ROOT, exist_ok=True)
         fig_path = FIG_PATH.format(FIG_NAME=title)
         fig.write_image(fig_path)
 
