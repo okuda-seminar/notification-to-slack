@@ -5,10 +5,10 @@ import time
 import unittest
 from unittest.mock import PropertyMock, MagicMock, patch
 
-import plotly.graph_objects as go
-import numpy as np
 import hydra
+import numpy as np
 from omegaconf import DictConfig, OmegaConf
+import plotly.graph_objects as go
 import requests
 
 from config import DB_PATH, FIG_PATH, FIG_ROOT
