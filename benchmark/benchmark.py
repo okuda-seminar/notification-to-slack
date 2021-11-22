@@ -9,13 +9,13 @@ import hydra
 import numpy as np
 from omegaconf import DictConfig, OmegaConf
 import plotly.graph_objects as go
-import requests
 
 from config import DB_PATH, FIG_PATH, FIG_ROOT
-from src.register_pr import PullRequest 
+from src.register_pr import PullRequest
 
 
 class TestDatabase(unittest.TestCase):
+
     def create_table(self, db_path: str) -> None:
         """Create repositories table
         Args:
@@ -35,7 +35,6 @@ class TestDatabase(unittest.TestCase):
                     )"
             )
             con.commit()
-
 
     def test_insert_pull_request(self, data_num: int, db_name: str) -> None:
         """Test the insertion of the pull requests
@@ -66,11 +65,12 @@ class TestDatabase(unittest.TestCase):
 
                 pull_request.insert_repositories(data)
 
+
 class Visualizer:
 
     @staticmethod
     def visualize(x: np.ndarray, y: np.ndarray, title: str = "benchmark test") -> None:
-        """Save figure.
+        """Save figure
         Args:
             x(np.ndarray): data points
             y(np.ndarray): elapsed time
@@ -78,7 +78,7 @@ class Visualizer:
         """
         times_average = np.average(y, axis=0)
         times_var = np.var(y, axis=0)
-        
+
         fig = go.Figure(
                 data=go.Scatter(
                     x=x,
@@ -86,7 +86,7 @@ class Visualizer:
                     name=title,
                     error_y=dict(
                         type="data",
-                        array=times_var, 
+                        array=times_var,
                         visible=True
                     )
                 )
@@ -102,22 +102,18 @@ class Visualizer:
 
 @hydra.main(config_name="config")
 def benchmark_db(cfg: DictConfig) -> None:
-    """Benchmark test the performance of the database
+    """Benchmark the performance of the database
     """
     benchmark_pull_request = TestDatabase()
 
     db_name = "dummy.db"
     db_path = DB_PATH.format(DB_NAME=db_name)
 
-    INIT_NUM = cfg.benchmark.init
-    TOTAL_NUM = cfg.benchmark.total
-    INTERVAL_NUM = cfg.benchmark.interval
-    EXPERIMENT_NUM = cfg.benchmark.experiment
-
-    for i in range(EXPERIMENT_NUM):
+    for i in range(cfg.benchmark.experiment):
         cur_result_times = np.array([])
         benchmark_pull_request.create_table(db_path)
-        for num in range(INIT_NUM, TOTAL_NUM, INTERVAL_NUM):
+
+        for num in range(cfg.benchmark.init, cfg.benchmark.total, cfg.benchmark.interval):
             start_time = time.time()
             benchmark_pull_request.test_insert_pull_request(data_num=num, db_name=db_name)
             end_time = time.time()
@@ -138,7 +134,7 @@ def benchmark_db(cfg: DictConfig) -> None:
         else:
             result_times = np.vstack((result_times, cur_result_times))
 
-    x = np.arange(INIT_NUM, TOTAL_NUM, INTERVAL_NUM)
+    x = np.arange(cfg.benchmark.init, cfg.benchmark.total, cfg.benchmark.interval)
     Visualizer.visualize(x, result_times)
 
 

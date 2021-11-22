@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from os.path import join
 import sqlite3
 
 import requests
@@ -49,7 +48,7 @@ class PullRequest:
             cursor = con.cursor()
             cursor.execute(
                     "DELETE FROM pull_requests WHERE pr_id = {} AND reviewer NOT IN {}".format(
-                    data[0], data[1]
+                        data[0], data[1]
                     )
             )
             con.commit()
@@ -103,9 +102,11 @@ class PullRequest:
         except TypeError:
             print("There is no token")
 
+
 def main():
     pull_request = PullRequest('git_slack.db')
     pull_request.access_github()
+
 
 if __name__ == "__main__":
     main()
