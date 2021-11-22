@@ -2,7 +2,8 @@ from os.path import join
 import sqlite3
 import requests
 
-from config import DB_ROOT
+import settings
+from config.const import DB_ROOT
 from datetime import datetime, timedelta
 
 
@@ -29,7 +30,7 @@ class PrGenerator():
 
 
 def create_table(db_path: str) -> None:
-    """create_table
+    """Create_table
     Args:
         db_path (str): database path
     """
@@ -61,13 +62,13 @@ def create_table(db_path: str) -> None:
 
 
 def insert_data(db_path: str):
-    """insert data
+    """Insert data
     Args:
         db_path (str): database path
     """
     with sqlite3.connect(db_path) as con:
         cursor = con.cursor()
-        token = "token"
+        token = settings.GITHUB_TOKEN
         TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
         headers = {"Authorization": f"token {token}"}
         repo_url = "https://api.github.com/user/repos"
@@ -82,15 +83,15 @@ def insert_data(db_path: str):
                     VALUES(?, ?, ?, ?, ?, ?)", (
                         repository["full_name"],
                         pull_request["node_id"],
-                        datetime.strptime(pull_request["created_at"], "%Y-%m-%dT%H:%M:%SZ"),
-                        datetime.strptime(pull_request["updated_at"], "%Y-%m-%dT%H:%M:%SZ"),
+                        datetime.strptime(pull_request["created_at"], TIME_FORMAT),
+                        datetime.strptime(pull_request["updated_at"], TIME_FORMAT),
                         datetime.now(),
                         datetime.now()
                     )
                 )
-                created_time = datetime.strptime(pull_request["created_at"], "%Y-%m-%dT%H:%M:%SZ")
-                updated_time = datetime.strptime(pull_request["updated_at"], "%Y-%m-%dT%H:%M:%SZ")
-                if created_time <= datetime.now() - timedelta(days=1):
+                created_time = datetime.strptime(pull_request["created_at"], TIME_FORMAT)
+                updated_time = datetime.strptime(pull_request["updated_at"], TIME_FORMAT)
+                if datetime.now() - timedelta(days=1) <= created_time:
                     for reviewer in pull_request["requested_reviewers"]:
                         cursor.execute(
                             "INSERT INTO pull_requests(\
@@ -107,10 +108,13 @@ def insert_data(db_path: str):
                                 datetime.now()
                             )
                         )
-                elif updated_time <= datetime.now() - timedelta(days=1):
+                elif datetime.now() - timedelta(days=1) <= updated_time:
                     reviewers = [reviewer["login"] for reviewer in pull_request["requested_reviewers"]]
-                    cursor.execute("DELETE FROM pull_requests WHERE pr_id = {} AND reviewer NOT IN {}".format(
-                        pull_request["ode_id"], reviewers))
+                    cursor.execute(
+                        "DELETE FROM pull_requests WHERE pr_id = {} AND reviewer NOT IN {}".format(
+                            pull_request["ode_id"], reviewers
+                        )
+                    )
             con.commit()
         except TypeError:
             print("There is no token")
