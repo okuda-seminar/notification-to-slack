@@ -75,44 +75,40 @@ def insert_data(db_path: str):
         repositories = requests.get(repo_url, headers=headers)
         try:
             for repository, pull_request in PrGenerator(repositories, headers):
+                created_time = datetime.strptime(pull_request["created_at"], TIME_FORMAT)
+                updated_time = datetime.strptime(pull_request["updated_at"], TIME_FORMAT)
                 cursor.execute(
                     "INSERT INTO repositories(\
                         repo_name, pr_id, pr_created_at,\
-                        pr_updated_at, created_at, updated_at\
+                        pr_updated_at\
                     )\
-                    VALUES(?, ?, ?, ?, ?, ?)", (
+                    VALUES(?, ?, ?, ?)", (
                         repository["full_name"],
                         pull_request["node_id"],
-                        datetime.strptime(pull_request["created_at"], TIME_FORMAT),
-                        datetime.strptime(pull_request["updated_at"], TIME_FORMAT),
-                        datetime.now(),
-                        datetime.now()
+                        created_time,
+                        updated_time,
                     )
                 )
-                created_time = datetime.strptime(pull_request["created_at"], TIME_FORMAT)
-                updated_time = datetime.strptime(pull_request["updated_at"], TIME_FORMAT)
                 if datetime.now() - timedelta(days=1) <= created_time:
                     for reviewer in pull_request["requested_reviewers"]:
                         cursor.execute(
                             "INSERT INTO pull_requests(\
                                 pr_id, pr_title, pr_reviewer,\
-                                pr_number, pr_url, created_at, updated_at\
+                                pr_number, pr_url\
                             )\
-                            VALUES(?, ?, ?, ?, ?, ?, ?)", (
+                            VALUES(?, ?, ?, ?, ?)", (
                                 pull_request["node_id"],
                                 pull_request["title"],
                                 reviewer["login"],
                                 pull_request["number"],
                                 pull_request["url"],
-                                datetime.now(),
-                                datetime.now()
                             )
                         )
                 elif datetime.now() - timedelta(days=1) <= updated_time:
                     reviewers = [reviewer["login"] for reviewer in pull_request["requested_reviewers"]]
                     cursor.execute(
                         "DELETE FROM pull_requests WHERE pr_id = {} AND reviewer NOT IN {}".format(
-                            pull_request["ode_id"], reviewers
+                            pull_request["node_id"], reviewers
                         )
                     )
             con.commit()
