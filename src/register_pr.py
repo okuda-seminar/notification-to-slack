@@ -77,19 +77,20 @@ def insert_data(db_path: str):
             for repository, pull_request in PrGenerator(repositories, headers):
                 created_time = datetime.strptime(pull_request["created_at"], TIME_FORMAT)
                 updated_time = datetime.strptime(pull_request["updated_at"], TIME_FORMAT)
-                cursor.execute(
-                    "INSERT INTO repositories(\
-                        repo_name, pr_id, pr_created_at,\
-                        pr_updated_at\
-                    )\
-                    VALUES(?, ?, ?, ?)", (
-                        repository["full_name"],
-                        pull_request["node_id"],
-                        created_time,
-                        updated_time,
-                    )
-                )
+
                 if datetime.now() - timedelta(days=1) <= created_time:
+                    cursor.execute(
+                        "INSERT INTO repositories(\
+                            repo_name, pr_id, pr_created_at,\
+                            pr_updated_at\
+                        )\
+                        VALUES(?, ?, ?, ?)", (
+                            repository["full_name"],
+                            pull_request["node_id"],
+                            datetime.strptime(pull_request["created_at"], "%Y-%m-%dT%H:%M:%SZ"),
+                            datetime.strptime(pull_request["updated_at"], "%Y-%m-%dT%H:%M:%SZ")
+                        )
+                    )
                     for reviewer in pull_request["requested_reviewers"]:
                         cursor.execute(
                             "INSERT INTO pull_requests(\
