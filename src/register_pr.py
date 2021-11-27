@@ -91,6 +91,7 @@ def insert_data(db_path: str):
                 )
                 created_time = datetime.strptime(pull_request["created_at"], TIME_FORMAT)
                 updated_time = datetime.strptime(pull_request["updated_at"], TIME_FORMAT)
+
                 if datetime.now() - timedelta(days=1) <= created_time:
                     for reviewer in pull_request["requested_reviewers"]:
                         cursor.execute(
@@ -112,7 +113,7 @@ def insert_data(db_path: str):
                     reviewers = [reviewer["login"] for reviewer in pull_request["requested_reviewers"]]
                     cursor.execute(
                         "DELETE FROM pull_requests WHERE pr_id = {} AND reviewer NOT IN {}".format(
-                            pull_request["ode_id"], reviewers
+                            pull_request["node_id"], reviewers
                         )
                     )
             con.commit()
