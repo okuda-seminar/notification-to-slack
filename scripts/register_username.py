@@ -1,8 +1,6 @@
 import argparse
 import sqlite3
 
-from datetime import datetime
-
 from write import MultipleWriter
 
 from config import DB_PATH
@@ -23,9 +21,9 @@ def insert_username(db_path : str, new_data: tuple) -> None:
             slack_user_id TEXT,\
             github_name TEXT,\
             created_at TEXT NOT NULL DEFAULT\
-            (DATETIME(\'now\', \'localtime\')),\
+            (DATETIME(\'now\', \'utc\')),\
             updated_at TEXT NOT NULL DEFAULT\
-            (DATETIME(\'now\', \'localtime\')))'
+            (DATETIME(\'now\', \'utc\')))'
         )
 
         cursor.execute(
@@ -38,9 +36,9 @@ def insert_username(db_path : str, new_data: tuple) -> None:
 
         if entry is None:
             cursor.execute(
-                'INSERT INTO usernames(slack_user_id, github_name, created_at, updated_at)\
-                VALUES (?,?,?,?)',
-                (new_data[0], new_data[1], datetime.now(), datetime.now())
+                'INSERT INTO usernames(slack_user_id, github_name)\
+                VALUES (?,?)',
+                (new_data[0], new_data[1])
             )
             con.commit()
             msg = 'The username on Github has been registered in the database.'
@@ -49,7 +47,6 @@ def insert_username(db_path : str, new_data: tuple) -> None:
             msg = 'The username on Github is already registered in the database.'
             log_level = "warning"
 
-        writer = MultipleWriter()
         writer.write(msg, log_level)
 
 
@@ -60,6 +57,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     new_data = (args.param1, args.param2)
 
-    db_path = DB_PATH.format(DB_NAME="git_slack.db")
+    db_path = DB_PATH.format(DB_NAME="git-slack.db")
+    writer = MultipleWriter()
 
     insert_username(db_path, new_data)
