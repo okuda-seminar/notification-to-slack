@@ -44,8 +44,8 @@ def create_table(db_path: str) -> None:
                 pr_reviewer TEXT,\
                 pr_number INT,\
                 pr_url TEXT, \
-                created_at TEXT NOT NULL DEFAULT (DATETIME(\'now\', \'localtime\')),\
-                updated_at TEXT NOT NULL DEFAULT (DATETIME(\'now\', \'localtime\'))\
+                created_at TEXT NOT NULL DEFAULT (DATETIME(\'now\', \'utc\')),\
+                updated_at TEXT NOT NULL DEFAULT (DATETIME(\'now\', \'utc\'))\
             )"
         )
         cursor.execute(
@@ -55,8 +55,8 @@ def create_table(db_path: str) -> None:
                 pr_id TEXT,\
                 pr_created_at TEXT NOT NULL DEFAULT DATETIME,\
                 pr_updated_at TEXT NOT NULL DEFAULT DATETIME,\
-                created_at TEXT NOT NULL DEFAULT (DATETIME(\'now\', \'localtime\')),\
-                updated_at TEXT NOT NULL DEFAULT (DATETIME(\'now\', \'localtime\'))\
+                created_at TEXT NOT NULL DEFAULT (DATETIME(\'now\', \'utc\')),\
+                updated_at TEXT NOT NULL DEFAULT (DATETIME(\'now\', \'utc\'))\
             )"
         )
 
