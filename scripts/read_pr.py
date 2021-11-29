@@ -15,9 +15,10 @@ def read_pr(db_path: str, slack_user_id: str, repository_name: str) -> None:
     """
     with sqlite3.connect(db_path) as con:
         cursor = con.cursor()
-        usernames = cursor.execute("SELECT * FROM usernames").fetchall()
         cursor.execute(
-            'SELECT github_name FROM usernames WHERE slack_user_id = ?', (slack_user_id,)
+            'SELECT github_name FROM usernames WHERE slack_user_id = ?', (
+                slack_user_id
+            )
         )
         github_user_entry = cursor.fetchone()
 
@@ -26,17 +27,22 @@ def read_pr(db_path: str, slack_user_id: str, repository_name: str) -> None:
             log_level = "warning"
 
         cursor.execute(
-            'SELECT pr_title, pr_number, pr_url FROM pull_requests WHERE pr_reviewer = ?', (github_user_entry)
+            'SELECT pr_title, pr_number, pr_url\
+            FROM pull_requests\
+            INNER JOIN repositories ON repositories.pr_id = pull_requests.pr_id\
+            WHERE pr_reviewer = ? AND repo_name = ?', (
+                github_user_entry, repository_name
+            )
         )
         pr_titles = cursor.fetchall()
 
         if len(pr_titles) == 0:
-              msg = 'No Pull Request to review'
-              log_level = "info"
-    
+            msg = 'No Pull Request to review'
+            log_level = "info"
+
         if not msg:
-              msg = pr_titles
-              log_level = "info"
+            msg = pr_titles
+            log_level = "info"
 
         writer.write(msg, log_level)
 
