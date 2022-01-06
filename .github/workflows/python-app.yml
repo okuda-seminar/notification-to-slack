@@ -16,3 +16,5 @@ jobs:
         run: |
           sh build-docker.sh
           sh exec.sh
+      - name: test
+        run: sh build.sh
