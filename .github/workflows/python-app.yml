@@ -1,16 +1,27 @@
 name: Python application
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
-      - name: Build
+      - name: Create dot env file
         run: |
-          sh build-docker.sh
-          sh exec.sh
-      - name: Test
-        run: sh build.sh
+          touch .env
+          echo 'DB_CONTAINER_NAME=${{ secrets.DB_CONTAINER_NAME }}' >> .env
+          echo 'PYTHON_CONTAINER_NAME=${{ secrets.PYTHON_CONTAINER_NAME }}' >> .env
+          echo 'DB_NAME=${{ secrets.DB_NAME }}' >> .env
+          echo 'DB_PASSWORD=${{ secrets.DB_PASSWORD }}' >> .env
+          echo 'DB_USER=${{ secrets.DB_USER }}' >> .env
+          echo 'DB_IMAGE_NAME=${{ secrets.DB_IMAGE_NAME }}' >> .env
+          echo 'PYTHON_IAMGE_NAME=${{ secrets.PYTHON_IMAGE_NAME }}' >> .env
+          echo 'PYTHON_PORT=${{ secrets.PYTHON_PORT }}' >> .env
+          echo 'DB_PORT=${{ secrets.DB_PORT }}' >> .env
+      - name: Build
+        shell: bash
+        run: |
+          sh docker/build.sh
+          docker-compose exec -T python3 sh -c 'chmod +x ./build.sh && ./build.sh'

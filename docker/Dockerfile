@@ -14,9 +14,12 @@ ENV WORK_PATH /workspace
 WORKDIR $WORK_PATH
 ENV PYTHONPATH "/workspace:${PYTHONPATH}"
 ENV PIP_OPTIONS "--no-cache-dir --progress-bar off"
-COPY requirements.txt $WORK_PATH/
-RUN pip install ${PIP_OPTIONS} -r $WORK_PATH/requirements.txt && \
+COPY docker/requirements.txt $WORK_PATH/docker/
+RUN pip install ${PIP_OPTIONS} -r $WORK_PATH/docker/requirements.txt && \
     pip install ${PIP_OPTIONS} -U setuptools
 
 RUN curl -sL https://deb.nodesource.com/setup_17.x | sudo -E bash -&& \
     apt-get install -y nodejs
+
+RUN apt-get install -y sysbench
+RUN apt-get install -y mariadb-client

@@ -2,6 +2,7 @@ version: "3"
 
 services:
   mysql_db:
+    restart: always
     container_name: $DB_CONTAINER_NAME
     image: mysql:5.7
     command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
@@ -12,22 +13,32 @@ services:
       MYSQL_DATABASE: $DB_NAME
       MYSQL_USER: $DB_USER
       MYSQL_PASSWORD: $DB_PASSWORD
+      MYSQL_PORT: $DB_PORT
+    ports:
+      - $DB_PORT:$DB_PORT
     networks:
       - app-tier
     env_file: .env
 
   python3:
     restart: always
-    build: ./
-    container_name: $PYTHON_CONTAINER_NAME
-    working_dir: "/workspace/"
-    tty: true
+    image: $PYTHON_IMAGE_NAME
+    links:
+      - mysql_db
     depends_on:
       - mysql_db
+    container_name: $PYTHON_CONTAINER_NAME
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    working_dir: "/workspace/"
+    tty: true
     networks:
-      - app-tier
+    - app-tier
+    ports:
+      - $PYTHON_PORT:$PYTHON_PORT
     volumes:
-      - ./:/workspace
+      - .:/workspace
       - pycache_volume:/workspace/.cache
     env_file: .env
 
