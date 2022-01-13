@@ -1,21 +1,16 @@
 name: Python application
 
-on:
-  push:
-    branches:
-    - 'feature/**'
+on: [push, pull_request]
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    if: contains(github.head_ref, 'feature')
-    if: ${{ github.event.assignee.login == 'tkkawa' }}
     steps:
       - uses: actions/checkout@v2
       - name: Build
         run: |
           sh build-docker.sh
           sh exec.sh
-      - name: test
+      - name: Test
         run: sh build.sh
