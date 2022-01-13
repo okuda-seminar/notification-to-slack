@@ -1,9 +1,9 @@
 import argparse
 import sqlite3
 
-from write import MultipleWriter
+from logging import getLogger, config
 
-from config import DB_PATH
+from config import DB_PATH, CONF_PATH
 
 
 def insert_username(db_path : str, new_data: tuple) -> None:
@@ -41,13 +41,9 @@ def insert_username(db_path : str, new_data: tuple) -> None:
                 (new_data[0], new_data[1])
             )
             con.commit()
-            msg = 'The username on Github has been registered in the database.'
-            log_level = "info"
+            logger.info('The username on Github has been registered in the database.')
         else:
-            msg = 'The username on Github is already registered in the database.'
-            log_level = "warning"
-
-        writer.write(msg, log_level)
+            logger.warning('The username on Github is already registered in the database.')
 
 
 if __name__ == '__main__':
@@ -58,6 +54,8 @@ if __name__ == '__main__':
     new_data = (args.param1, args.param2)
 
     db_path = DB_PATH.format(DB_NAME="git-slack.db")
-    writer = MultipleWriter()
+    conf_path = CONF_PATH.format(CONF_NAME="logging.conf")
+    config.fileConfig(conf_path)
+    logger = getLogger(__name__)
 
     insert_username(db_path, new_data)
