@@ -10,6 +10,7 @@ jobs:
 
     runs-on: ubuntu-latest
     if: contains(github.head_ref, 'feature')
+    if: ${{ github.event.assignee.login == 'tkkawa' }}
     steps:
       - uses: actions/checkout@v2
       - name: Build
