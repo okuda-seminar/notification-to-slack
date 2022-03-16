@@ -26,4 +26,4 @@ jobs:
         shell: bash
         run: |
           sh docker/build.sh
-          docker-compose exec -T python3 sh -c 'chmod -R +x . && ./build.sh && ./test/test_mysql.sh'
+          docker-compose exec -T python3 sh -c 'chmod -R +x . && cat .env && ./build.sh && ./test/test_mysql.sh'
