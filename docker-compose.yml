@@ -22,7 +22,7 @@ services:
 
   python3:
     restart: always
-    image: python3
+    image: $PYTHON_IMAGE_NAME
     links:
       - mysql_db
     depends_on:
