@@ -17,7 +17,8 @@ services:
     ports:
       - $DB_PORT:$DB_PORT
     networks:
-      - app-tier
+      app-tier:
+        ipv4_address: $DB_IP
     env_file: .env
 
   python3:
@@ -34,7 +35,8 @@ services:
     working_dir: "/workspace/"
     tty: true
     networks:
-    - app-tier
+      app-tier:
+        ipv4_address: $PYTHON_IP
     ports:
       - $PYTHON_PORT:$PYTHON_PORT
     volumes:
@@ -45,6 +47,10 @@ services:
 networks:
   app-tier:
     driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.0.0/24
 
 volumes:
   db_volume:

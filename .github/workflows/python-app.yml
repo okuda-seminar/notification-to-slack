@@ -20,8 +20,10 @@ jobs:
           echo 'PYTHON_IAMGE_NAME=${{ secrets.PYTHON_IMAGE_NAME }}' >> .env
           echo 'PYTHON_PORT=${{ secrets.PYTHON_PORT }}' >> .env
           echo 'DB_PORT=${{ secrets.DB_PORT }}' >> .env
+          echo 'DB_IP=${{ secrets.DB_IP }}' >> .env
+          echo 'PYTHON_IP=${{ secrets.PYTHON_IP }}' >> .env
       - name: Build
         shell: bash
         run: |
           sh docker/build.sh
-          docker-compose exec -T python3 sh -c 'chmod +x ./build.sh && ./build.sh'
+          docker-compose exec -T python3 sh -c 'chmod -R +x . && ./build.sh && ./test/test_mysql.sh'
