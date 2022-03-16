@@ -1,6 +1,7 @@
 ARG PYTHON_VERSION=3.8
 
 FROM python:${PYTHON_VERSION}
+
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update -qq && \
     apt-get install -y \
@@ -19,3 +20,6 @@ RUN pip install ${PIP_OPTIONS} -r $WORK_PATH/docker/requirements.txt && \
 
 RUN curl -sL https://deb.nodesource.com/setup_17.x | sudo -E bash -&& \
     apt-get install -y nodejs
+
+RUN apt-get install -y sysbench
+RUN apt-get install -y mariadb-client

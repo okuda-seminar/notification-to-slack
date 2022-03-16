@@ -1,38 +1,31 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
 name: Python application
 
-on:
-  push:
-    branches:
-      - feature/**
-  pull_request:
-    branches:
-      - feature/**
+on: [push]
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
-
+    runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v2
-      with:
-        python-version: "3.10"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        pytest
+      - uses: actions/checkout@v2
+      - name: Create dot env file
+        run: |
+          touch .env
+          echo 'DB_CONTAINER_NAME=${{ secrets.DB_CONTAINER_NAME }}' >> .env
+          echo 'PYTHON_CONTAINER_NAME=${{ secrets.PYTHON_CONTAINER_NAME }}' >> .env
+          echo 'DB_NAME=${{ secrets.DB_NAME }}' >> .env
+          echo 'DB_PASSWORD=${{ secrets.DB_PASSWORD }}' >> .env
+          echo 'DB_USER=${{ secrets.DB_USER }}' >> .env
+          echo 'DB_IMAGE_NAME=${{ secrets.DB_IMAGE_NAME }}' >> .env
+          echo 'PYTHON_IAMGE_NAME=${{ secrets.PYTHON_IMAGE_NAME }}' >> .env
+          echo 'PYTHON_PORT=${{ secrets.PYTHON_PORT }}' >> .env
+          echo 'DB_PORT=${{ secrets.DB_PORT }}' >> .env
+          echo 'DB_IP=${{ secrets.DB_IP }}' >> .env
+          echo 'PYTHON_IP=${{ secrets.PYTHON_IP }}' >> .env
+          echo 'DB_SERVICE_NAME=${{ secrets.DB_SERVICE_NAME }}' >> .env
+          echo 'PYTHON_SERVICE_NAME=${{ secrets.PYTHON_SERVICE_NAME }}' >> .env
+      - name: Build
+        shell: bash
+        run: |
+          sh docker/build.sh
+          docker-compose exec -T python3 sh -c 'chmod -R +x .  && ./build.sh && ./test/test_mysql.sh'

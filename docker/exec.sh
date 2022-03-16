@@ -1,5 +1,3 @@
 #!/bin/sh
-. docker/env.sh
-docker exec \
-  -it \
-  $CONTAINER_NAME bash 
+docker-compose exec \
+	python3 bash
